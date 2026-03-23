@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitExtension.Settings;
@@ -45,11 +46,15 @@ public sealed class GitRepoSettingsManager : JsonSettingsManager
 
     /// <summary>
     /// Programmatically updates the scan paths setting and persists to disk.
+    /// Uses Settings.Update() to fire SettingsChanged so all listeners are notified.
     /// </summary>
     public void UpdateScanPaths(string paths)
     {
-        _scanPaths.Value = paths;
-        SaveSettings();
+        var json = JsonSerializer.Serialize(new Dictionary<string, string>
+        {
+            [Namespaced("scanPaths")] = paths,
+        });
+        Settings.Update(json);
     }
 
     internal static string SettingsJsonPath()
