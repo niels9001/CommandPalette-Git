@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "GitExtension (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "GitExtension (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
