@@ -18,7 +18,7 @@ public partial class GitExtensionCommandsProvider : CommandProvider
     public GitExtensionCommandsProvider()
     {
         DisplayName = "Git repositories";
-        Icon = IconHelpers.FromRelativePaths("Assets\\git.dark.svg", "Assets\\git.light.svg");
+        Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.scale-200.png");
         Id = "com.gitextension.repos";
         Settings = _settingsManager.Settings;
 

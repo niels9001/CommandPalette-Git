@@ -17,7 +17,7 @@ namespace GitExtension.Pages;
 internal sealed partial class GitReposPage : DynamicListPage
 {
     private static readonly IconInfo GitIcon =
-        IconHelpers.FromRelativePaths("Assets\\git.dark.svg", "Assets\\git.light.svg");
+        IconHelpers.FromRelativePaths("Assets\\git.light.svg", "Assets\\git.dark.svg");
 
     private readonly GitRepoSettingsManager _settingsManager;
     private readonly SetupPage _setupPage;
