@@ -32,7 +32,7 @@ internal sealed partial class GitReposPage : DynamicListPage
         _setupPage = new SetupPage(settingsManager);
 
         Icon = GitIcon;
-        Title = "Git repositories";
+        Title = "Browse git repositories";
         Name = "Open";
         PlaceholderText = "Search repositories...";
 
@@ -74,19 +74,6 @@ internal sealed partial class GitReposPage : DynamicListPage
 
     public override IListItem[] GetItems()
     {
-        if (string.IsNullOrWhiteSpace(_settingsManager.ScanPaths))
-        {
-            return
-            [
-                new ListItem(_setupPage)
-                {
-                    Title = "Configure scan paths",
-                    Subtitle = "Set up root directories to scan for git repositories",
-                    Icon = new IconInfo("\uE713"),
-                },
-            ];
-        }
-
         if (_repos.Count == 0)
         {
             return

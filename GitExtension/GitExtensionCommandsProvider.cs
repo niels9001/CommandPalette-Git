@@ -11,21 +11,47 @@ namespace GitExtension;
 
 public partial class GitExtensionCommandsProvider : CommandProvider
 {
-    private readonly ICommandItem[] _commands;
+    private static readonly IconInfo ExtensionIcon =
+        IconHelpers.FromRelativePath("Assets\\StoreLogo.scale-200.png");
+
     private readonly GitRepoSettingsManager _settingsManager = new();
     private readonly GitReposPage _reposPage;
+    private readonly SetupPage _setupPage;
+    private ICommandItem[] _commands;
 
     public GitExtensionCommandsProvider()
     {
-        DisplayName = "Git repositories";
-        Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.scale-200.png");
+        DisplayName = "Browse git repositories";
+        Icon = ExtensionIcon;
         Id = "com.gitextension.repos";
         Settings = _settingsManager.Settings;
 
         _reposPage = new GitReposPage(_settingsManager);
-        _commands =
+        _setupPage = new SetupPage(_settingsManager);
+
+        _commands = BuildCommands();
+        _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
+    }
+
+    private void OnSettingsChanged(object? sender, Microsoft.CommandPalette.Extensions.Toolkit.Settings args)
+    {
+        _commands = BuildCommands();
+        RaiseItemsChanged();
+    }
+
+    private ICommandItem[] BuildCommands()
+    {
+        if (string.IsNullOrWhiteSpace(_settingsManager.ScanPaths))
+        {
+            return
+            [
+                new CommandItem(_setupPage) { Title = DisplayName, Icon = ExtensionIcon },
+            ];
+        }
+
+        return
         [
-            new CommandItem(_reposPage) { Title = DisplayName },
+            new CommandItem(_reposPage) { Title = DisplayName, Icon = ExtensionIcon },
         ];
     }
 
