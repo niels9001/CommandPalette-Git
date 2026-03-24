@@ -10,6 +10,10 @@
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
 
+    <AppxPackageIdentityName>27078NielsLaute.GitrepositoriesforCommandPalette</AppxPackageIdentityName>
+    <AppxPackagePublisher>CN=D821D027-C2F6-4E57-A741-849AE0C48C59</AppxPackagePublisher>
+    <AppxPackageVersion>0.0.1.0</AppxPackageVersion>
+
     <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>

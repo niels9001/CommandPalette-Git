@@ -9,15 +9,13 @@
   IgnorableNamespaces="uap uap3 rescap">
 
   <Identity
-    Name="GitExtension"
-    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+    Name="27078NielsLaute.GitrepositoriesforCommandPalette"
+    Publisher="CN=D821D027-C2F6-4E57-A741-849AE0C48C59"
     Version="0.0.1.0" />
-  <!-- When you're ready to publish your extension, you'll need to change the
-       Publisher= to match your own identity -->
 
   <Properties>
-    <DisplayName>Git Repositories</DisplayName>
-    <PublisherDisplayName>Niels Laute</PublisherDisplayName>
+    <DisplayName>Git repositories for Command Palette</DisplayName>
+    <PublisherDisplayName>NielsLaute</PublisherDisplayName>
     <Logo>Assets\StoreLogo.scale-200.png</Logo>
   </Properties>
 
