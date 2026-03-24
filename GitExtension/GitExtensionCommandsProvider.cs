@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Threading.Tasks;
 using GitExtension.Pages;
 using GitExtension.Settings;
 using Microsoft.CommandPalette.Extensions;
@@ -32,6 +33,14 @@ public partial class GitExtensionCommandsProvider : CommandProvider
         _commands = BuildCommands();
         _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
         _settingsManager.ScanPathsUpdated += (s, e) => OnSettingsChanged(s, _settingsManager.Settings);
+
+        // Signal readiness after construction so CmdPal re-resolves
+        // any saved dock pins that may have been queried too early.
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(500);
+            RaiseItemsChanged();
+        });
     }
 
     private void OnSettingsChanged(object? sender, Microsoft.CommandPalette.Extensions.Toolkit.Settings args)
