@@ -102,10 +102,32 @@ internal sealed partial class GitReposPage : DynamicListPage
 
     /// <summary>
     /// Resolves a command item by ID for dock pinning support.
+    /// Falls back to building the item on-demand from _repos so that
+    /// pinned dock items resolve even before the page has been visited.
     /// </summary>
     internal ICommandItem? GetCommandItemById(string id)
     {
-        return _commandItemCache.TryGetValue(id, out var item) ? item : null;
+        if (_commandItemCache.TryGetValue(id, out var item))
+        {
+            return item;
+        }
+
+        // On-demand resolution: find the repo by ID and build a CommandItem
+        var repo = _repos.FirstOrDefault(r => RepoCommandId(r) == id);
+        if (repo == null)
+        {
+            return null;
+        }
+
+        var openFolder = new OpenFolderCommand(repo) { Id = id };
+        var commandItem = new CommandItem(openFolder)
+        {
+            Title = repo.Name,
+            Subtitle = repo.FullPath,
+            Icon = GitIcon,
+        };
+        _commandItemCache[id] = commandItem;
+        return commandItem;
     }
 
     private static string RepoCommandId(GitRepoInfo repo) => $"repo.{repo.FullPath}";
