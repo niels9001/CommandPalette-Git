@@ -40,14 +40,25 @@ public sealed class GitRepoSettingsManager : JsonSettingsManager
         Value = "3",
     };
 
+    private readonly TextSetting _terminalCommand = new(
+        Namespaced("terminalCommand"),
+        "Terminal Startup Command",
+        "Command to run automatically when opening a repository in terminal (e.g. git status, npm install)",
+        string.Empty);
+
     public string ScanPaths => _scanPaths.Value ?? string.Empty;
 
     public int MaxDepth => int.TryParse(_maxDepth.Value, out var depth) ? depth : 3;
 
+    public string TerminalCommand => _terminalCommand.Value ?? string.Empty;
+
     /// <summary>
     /// Programmatically updates the scan paths setting and persists to disk.
-    /// Uses Settings.Update() to fire SettingsChanged so all listeners are notified.
+    /// We can't use Settings.RaiseSettingsChanged() (it's internal to the toolkit),
+    /// so we save directly and fire our own event for listeners.
     /// </summary>
+    public event EventHandler? ScanPathsUpdated;
+
     public void UpdateScanPaths(string paths)
     {
         var json = JsonSerializer.Serialize(new Dictionary<string, string>
@@ -55,6 +66,8 @@ public sealed class GitRepoSettingsManager : JsonSettingsManager
             [Namespaced("scanPaths")] = paths,
         });
         Settings.Update(json);
+        SaveSettings();
+        ScanPathsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     internal static string SettingsJsonPath()
@@ -70,6 +83,7 @@ public sealed class GitRepoSettingsManager : JsonSettingsManager
 
         Settings.Add(_scanPaths);
         Settings.Add(_maxDepth);
+        Settings.Add(_terminalCommand);
 
         LoadSettings();
 

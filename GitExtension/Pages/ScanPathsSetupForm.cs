@@ -72,6 +72,9 @@ internal sealed partial class ScanPathsSetupForm : FormContent
             _settingsManager.UpdateScanPaths(scanPaths);
         }
 
-        return CommandResult.GoBack();
+        // GoHome() returns to the CmdPal main page where the updated top-level
+        // command (now GitReposPage) is visible. Ideally we'd use GoToPage()
+        // but that doesn't exist yet: https://github.com/microsoft/PowerToys/issues/46472
+        return CommandResult.GoHome();
     }
 }

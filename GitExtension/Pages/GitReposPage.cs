@@ -37,6 +37,7 @@ internal sealed partial class GitReposPage : DynamicListPage
         PlaceholderText = "Search repositories...";
 
         _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
+        _settingsManager.ScanPathsUpdated += (s, e) => OnSettingsChanged(s, _settingsManager.Settings);
         RefreshRepos();
     }
 
@@ -98,8 +99,8 @@ internal sealed partial class GitReposPage : DynamicListPage
         {
             var repoId = RepoCommandId(repo);
             var openFolder = new OpenFolderCommand(repo) { Id = repoId };
+            var openTerminal = new OpenInTerminalCommand(repo, _settingsManager.TerminalCommand);
             var openVSCode = new OpenInVSCodeCommand(repo);
-            var openTerminal = new OpenInTerminalCommand(repo);
             var copyPath = new CopyRepoPathCommand(repo);
 
             var listItem = new ListItem(openFolder)
@@ -109,9 +110,10 @@ internal sealed partial class GitReposPage : DynamicListPage
                 Icon = GitIcon,
                 MoreCommands =
                 [
-                    new CommandContextItem(openVSCode),
                     new CommandContextItem(openTerminal),
+                    new CommandContextItem(openVSCode),
                     new CommandContextItem(copyPath),
+                    new CommandContextItem(_settingsManager.Settings.SettingsPage) { Title = "Settings", Icon = new IconInfo("\uE713") },
                 ],
             };
 
@@ -126,13 +128,6 @@ internal sealed partial class GitReposPage : DynamicListPage
 
             return listItem;
         }).ToList();
-
-        // Add settings command at the bottom
-        items.Add(new ListItem(_setupPage)
-        {
-            Title = "Change scan paths",
-            Icon = new IconInfo("\uE713"),
-        });
 
         return items.ToArray();
     }

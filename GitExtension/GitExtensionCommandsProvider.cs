@@ -31,6 +31,7 @@ public partial class GitExtensionCommandsProvider : CommandProvider
 
         _commands = BuildCommands();
         _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
+        _settingsManager.ScanPathsUpdated += (s, e) => OnSettingsChanged(s, _settingsManager.Settings);
     }
 
     private void OnSettingsChanged(object? sender, Microsoft.CommandPalette.Extensions.Toolkit.Settings args)

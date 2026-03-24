@@ -14,18 +14,27 @@ namespace GitExtension.Commands;
 internal sealed partial class OpenInTerminalCommand : InvokableCommand
 {
     private readonly GitRepoInfo _repo;
+    private readonly string _startupCommand;
 
-    public OpenInTerminalCommand(GitRepoInfo repo)
+    public OpenInTerminalCommand(GitRepoInfo repo, string startupCommand = "")
     {
         _repo = repo;
+        _startupCommand = startupCommand;
         Name = "Open in terminal";
         Icon = new IconInfo("\uE756"); // CommandPrompt icon
     }
 
     public override CommandResult Invoke()
     {
-        // Try Windows Terminal first, fall back to cmd.exe
-        ShellHelpers.OpenInShell("wt.exe", $"-d \"{_repo.FullPath}\"", _repo.FullPath);
+        if (!string.IsNullOrWhiteSpace(_startupCommand))
+        {
+            // Open terminal in the repo directory and run the startup command
+            ShellHelpers.OpenInShell("wt.exe", $"-d \"{_repo.FullPath}\" cmd /k \"{_startupCommand}\"", _repo.FullPath);
+        }
+        else
+        {
+            ShellHelpers.OpenInShell("wt.exe", $"-d \"{_repo.FullPath}\"", _repo.FullPath);
+        }
 
         return CommandResult.Dismiss();
     }
