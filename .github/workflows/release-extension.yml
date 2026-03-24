@@ -1,0 +1,118 @@
+name: CmdPal Git Extension - Build EXE Installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (leave empty to auto-detect)'
+        required: false
+        type: string
+      release_notes:
+        description: 'What is new in this version'
+        required: false
+        default: 'New release with latest updates and improvements.'
+        type: string
+
+env:
+  DISPLAY_NAME: "Git Repositories"
+  EXTENSION_NAME: "GitExtension"
+  FOLDER_NAME: "GitExtension"
+  GITHUB_REPO_URL: "https://github.com/niels9001/CommandPalette-Git"
+
+jobs:
+  build:
+    runs-on: windows-2022
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Install Inno Setup
+      run: choco install innosetup -y --no-progress
+      shell: pwsh
+    
+    - name: Get version from project
+      id: version
+      run: |
+        if ("${{ github.event.inputs.version }}" -ne "") {
+          $version = "${{ github.event.inputs.version }}"
+        } else {
+          $projectFile = "${{ env.FOLDER_NAME }}/${{ env.EXTENSION_NAME }}.csproj"
+          $xml = [xml](Get-Content $projectFile)
+          $version = $xml.Project.PropertyGroup.AppxPackageVersion | Select-Object -First 1
+          if (-not $version) {
+            # Fall back to Package.appxmanifest
+            $manifest = [xml](Get-Content "${{ env.FOLDER_NAME }}/Package.appxmanifest")
+            $version = $manifest.Package.Identity.Version
+          }
+          if (-not $version) { $version = "0.0.1.0" }
+        }
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        Write-Host "Using version: $version"
+      shell: pwsh
+    
+    - name: Build EXE installers (x64 and ARM64)
+      run: |
+        Set-Location "${{ env.FOLDER_NAME }}/${{ env.FOLDER_NAME }}"
+        .\build-exe.ps1 -Version "${{ steps.version.outputs.VERSION }}" -Platforms @("x64", "arm64")
+      shell: pwsh
+    
+    - name: Upload x64 installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.EXTENSION_NAME }}-x64-installer
+        path: ${{ env.FOLDER_NAME }}/${{ env.FOLDER_NAME }}/bin/Release/installer/*-x64.exe
+        if-no-files-found: error
+
+    - name: Upload ARM64 installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.EXTENSION_NAME }}-arm64-installer
+        path: ${{ env.FOLDER_NAME }}/${{ env.FOLDER_NAME }}/bin/Release/installer/*-arm64.exe
+        if-no-files-found: warn
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        name: "Git Repositories v${{ steps.version.outputs.VERSION }}"
+        body: |
+          ## 🎯 Git Repositories ${{ steps.version.outputs.VERSION }}
+          
+          ## What's New
+          ${{ github.event.inputs.release_notes }}
+          
+          ## 📦 Installation
+          
+          Download the installer for your system architecture:
+          
+          - **x64 (Intel/AMD)**: `GitExtension-Setup-${{ steps.version.outputs.VERSION }}-x64.exe`
+          - **ARM64 (Windows on ARM)**: `GitExtension-Setup-${{ steps.version.outputs.VERSION }}-arm64.exe`
+          
+          1. Download the appropriate installer from the Assets section below
+          2. Run the installer
+          3. The extension will be registered and available in Command Palette
+
+          ## 🔗 More Information
+          
+          Repository: ${{ env.GITHUB_REPO_URL }}
+        files: ${{ env.FOLDER_NAME }}/${{ env.FOLDER_NAME }}/bin/Release/installer/*.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build summary
+      run: |
+        Write-Host "Git Repositories Release Complete!" -ForegroundColor Green
+        Write-Host "Version: ${{ steps.version.outputs.VERSION }}" -ForegroundColor Yellow
+        Write-Host "Installer uploaded to GitHub Release" -ForegroundColor Green
+      shell: pwsh
