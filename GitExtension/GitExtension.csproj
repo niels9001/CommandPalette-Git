@@ -14,7 +14,6 @@
     <AppxPackagePublisher>CN=D821D027-C2F6-4E57-A741-849AE0C48C59</AppxPackagePublisher>
     <AppxPackageVersion>0.0.1.0</AppxPackageVersion>
 
-    <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -80,7 +79,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PublishSingleFile>true</PublishSingleFile>
+    <PublishSingleFile Condition="'$(WindowsPackageType)'=='None'">true</PublishSingleFile>
     <IsAotCompatible>true</IsAotCompatible>
 
     <CsWinRTAotOptimizerEnabled>true</CsWinRTAotOptimizerEnabled>

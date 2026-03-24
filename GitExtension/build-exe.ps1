@@ -37,6 +37,7 @@ foreach ($Platform in $Platforms) {
         --configuration $Configuration `
         --runtime "win-$Platform" `
         --self-contained true `
+        -p:WindowsPackageType=None `
         --output "$ProjectDir\bin\$Configuration\win-$Platform\publish"
 
     if ($LASTEXITCODE -ne 0) { 
