@@ -11,6 +11,7 @@ A [Command Palette](https://learn.microsoft.com/windows/powertoys/command-palett
 - **Open in Explorer** — Default action opens the repo folder in Windows Explorer
 - **Open in VS Code** — Launch VS Code directly at the repository path
 - **Open in Terminal** — Opens Windows Terminal (or cmd fallback) at the repo directory
+- **Terminal startup command** — Optionally run a command automatically when opening in terminal
 - **Copy path** — Copy the full repository path to your clipboard
 - **Search & filter** — Real-time filtering by repo name or path
 - **Dock pinning** — Pin your favorite repos to the Command Palette Dock for instant access
@@ -48,6 +49,7 @@ When you first open the extension, you'll be prompted to configure your scan pat
 |---------|-------------|---------|
 | **Scan paths** | Semicolon-separated root directories (e.g. `D:\Projects;C:\repos`) | *(empty)* |
 | **Max scan depth** | How deep to recurse into directories (2–6) | 3 |
+| **Terminal startup command** | Command to auto-run when opening a repo in terminal (e.g. `git status`) | *(empty)* |
 
 You can change these anytime via the "Change scan paths" item at the bottom of the repo list, or through the extension's settings page.
 
@@ -73,3 +75,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+## Privacy
+
+This extension operates entirely offline and does not collect any data. See [PRIVACY.md](PRIVACY.md) for details.
