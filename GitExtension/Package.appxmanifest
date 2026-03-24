@@ -33,7 +33,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Git Repositories"
+        DisplayName="Git repositories for Command Palette"
         Description="Discover and access local git repositories from Command Palette"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
