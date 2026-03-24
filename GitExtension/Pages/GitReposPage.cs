@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using GitExtension.Commands;
 using GitExtension.Models;
 using GitExtension.Services;
@@ -22,6 +24,7 @@ internal sealed partial class GitReposPage : DynamicListPage
     private readonly GitRepoSettingsManager _settingsManager;
     private readonly SetupPage _setupPage;
     private List<GitRepoInfo> _repos = [];
+    private int _isScanning;
 
     // Cache of command items for dock pinning lookup
     private readonly Dictionary<string, ICommandItem> _commandItemCache = [];
@@ -58,6 +61,40 @@ internal sealed partial class GitReposPage : DynamicListPage
         _repos = GitRepoScanner.Scan(_settingsManager.ScanPaths, _settingsManager.MaxDepth);
     }
 
+    private void RefreshReposInBackground()
+    {
+        if (string.IsNullOrWhiteSpace(_settingsManager.ScanPaths))
+        {
+            return;
+        }
+
+        // Skip if a scan is already running
+        if (Interlocked.CompareExchange(ref _isScanning, 1, 0) != 0)
+        {
+            return;
+        }
+
+        IsLoading = true;
+        Task.Run(() =>
+        {
+            try
+            {
+                var newRepos = GitRepoScanner.Scan(_settingsManager.ScanPaths, _settingsManager.MaxDepth);
+                var changed = !_repos.Select(r => r.FullPath).SequenceEqual(newRepos.Select(r => r.FullPath));
+                if (changed)
+                {
+                    _repos = newRepos;
+                    RaiseItemsChanged();
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+                Interlocked.Exchange(ref _isScanning, 0);
+            }
+        });
+    }
+
     public override void UpdateSearchText(string oldSearch, string newSearch)
     {
         RaiseItemsChanged();
@@ -75,6 +112,9 @@ internal sealed partial class GitReposPage : DynamicListPage
 
     public override IListItem[] GetItems()
     {
+        // Trigger a background rescan each time the page is shown
+        RefreshReposInBackground();
+
         if (_repos.Count == 0)
         {
             return
